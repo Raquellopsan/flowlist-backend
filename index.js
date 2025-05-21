@@ -11,7 +11,7 @@ const tareaApis = require("./control/tarea02"); // Rutas para las operaciones de
 // Configuramos el middleware CORS para permitir solicitudes desde el frontend
 servidor.use(
   cors({
-    origin: "http://localhost:5173", // Frontend (puerto donde se ejecuta la app)
+    origin: "https://flowlist-frontend.onrender.com", // Frontend (puerto donde se ejecuta la app)
     credentials: true, // Permite el envío de cookies
     methods: ["GET", "POST", "PUT", "DELETE"], // Métodos HTTP permitidos
     allowedHeaders: ["Content-Type", "Authorization"], // Cabeceras permitidas
