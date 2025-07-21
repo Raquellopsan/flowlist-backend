@@ -96,7 +96,7 @@ const login = async (peticion, respuesta) => {
     // Enviamos el token como una cookie para mantener la sesión activa
     respuesta.cookie("flowlistUserToken", token, {
       httpOnly: true, // Cookie solo accesible por el servidor
-      sameSite: "None", // Configuración de cookie para seguridad
+      sameSite: "none", // Configuración de cookie para seguridad
       secure: true, // Configurar como true si usas HTTPS
       maxAge: 30 * 24 * 60 * 60 * 1000, // Cookie válida por 30 días
     });
