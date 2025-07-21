@@ -59,25 +59,71 @@ const registro = async (peticion, respuesta) => {
 };
 
 // Función para realizar login de un usuario
+// const login = async (peticion, respuesta) => {
+//   try {
+//     // Extraemos los datos del cuerpo de la petición
+//     const { email, contraseña } = peticion.body;
+
+//     // Verificamos que los campos necesarios estén presentes
+//     if (!email || !contraseña) {
+//       return respuesta
+//         .status(400)
+//         .json({ error: "Debe rellenar todos los campos" });
+//     }
+
+//     // Buscamos el usuario en la base de datos
+//     const checkUser = await User.findOne({ email });
+//     if (!checkUser) {
+//       return respuesta.status(404).json({ error: "Usuario no encontrado" });
+//     }
+
+//     // Comparamos la contraseña ingresada con la encriptada en la base de datos
+//     const contraseñaValida = await bcrypt.compare(
+//       contraseña,
+//       checkUser.contraseña
+//     );
+//     if (!contraseñaValida) {
+//       return respuesta.status(401).json({ error: "Contraseña incorrecta" });
+//     }
+
+//     // Creamos el token JWT con los datos del usuario
+//     const token = jwt.sign(
+//       { id: checkUser._id, email: checkUser.email },
+//       process.env.JWT_SECRET,
+//       { expiresIn: "30d" }
+//     );
+
+//     // Enviamos el token como una cookie para mantener la sesión activa
+//     respuesta.cookie("flowlistUserToken", token, {
+//       httpOnly: true, // Cookie solo accesible por el servidor
+//       sameSite: "none", // Configuración de cookie para seguridad
+//       secure: true, // Configurar como true si usas HTTPS
+//       maxAge: 30 * 24 * 60 * 60 * 1000, // Cookie válida por 30 días
+//     });
+
+//     return respuesta
+//       .status(200)
+//       .json({ success: "Has iniciado sesión correctamente" });
+//   } catch (error) {
+//     return respuesta.status(200).json({ error: "Error en el servidor" });
+//   }
+// };
+
 const login = async (peticion, respuesta) => {
   try {
-    // Extraemos los datos del cuerpo de la petición
     const { email, contraseña } = peticion.body;
 
-    // Verificamos que los campos necesarios estén presentes
     if (!email || !contraseña) {
       return respuesta
         .status(400)
         .json({ error: "Debe rellenar todos los campos" });
     }
 
-    // Buscamos el usuario en la base de datos
     const checkUser = await User.findOne({ email });
     if (!checkUser) {
       return respuesta.status(404).json({ error: "Usuario no encontrado" });
     }
 
-    // Comparamos la contraseña ingresada con la encriptada en la base de datos
     const contraseñaValida = await bcrypt.compare(
       contraseña,
       checkUser.contraseña
@@ -86,26 +132,19 @@ const login = async (peticion, respuesta) => {
       return respuesta.status(401).json({ error: "Contraseña incorrecta" });
     }
 
-    // Creamos el token JWT con los datos del usuario
     const token = jwt.sign(
       { id: checkUser._id, email: checkUser.email },
       process.env.JWT_SECRET,
       { expiresIn: "30d" }
     );
 
-    // Enviamos el token como una cookie para mantener la sesión activa
-    respuesta.cookie("flowlistUserToken", token, {
-      httpOnly: true, // Cookie solo accesible por el servidor
-      sameSite: "none", // Configuración de cookie para seguridad
-      secure: true, // Configurar como true si usas HTTPS
-      maxAge: 30 * 24 * 60 * 60 * 1000, // Cookie válida por 30 días
+    // ENVIAMOS EL TOKEN EN EL CUERPO DE LA RESPUESTA
+    return respuesta.status(200).json({
+      success: "Has iniciado sesión correctamente",
+      token, // ← ahora frontend lo guarda
     });
-
-    return respuesta
-      .status(200)
-      .json({ success: "Has iniciado sesión correctamente" });
   } catch (error) {
-    return respuesta.status(200).json({ error: "Error en el servidor" });
+    return respuesta.status(500).json({ error: "Error en el servidor" });
   }
 };
 
