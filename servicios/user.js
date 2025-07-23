@@ -8,17 +8,17 @@ const tareas = require("../models/tareas");
 const registro = async (peticion, respuesta) => {
   try {
     // Extraemos los datos del cuerpo de la petición
-    const { nombreUsuario, email, password } = peticion.body;
+    const { nombreUsuario, email, contraseña } = peticion.body;
 
     // Verificamos que los campos necesarios estén presentes
-    if (!nombreUsuario || !email || !password) {
+    if (!nombreUsuario || !email || !contraseña) {
       return respuesta
         .status(400)
         .json({ error: "Debe rellenar todos los campos" });
     }
 
     // Validamos que la contraseña tenga al menos 6 caracteres
-    if (password.length < 6) {
+    if (contraseña.length < 6) {
       return respuesta
         .status(400)
         .json({ error: "La contraseña debe tener mínimo 6 caracteres" });
@@ -36,13 +36,13 @@ const registro = async (peticion, respuesta) => {
     } else {
       // Encriptamos la contraseña antes de guardarla
       const salt = await bcrypt.genSalt(10);
-      const contraseñaHash = await bcrypt.hash(password, salt);
+      const contraseñaHash = await bcrypt.hash(contraseña, salt);
 
       // Creamos un nuevo usuario
       const newUser = new User({
         nombreUsuario,
         email,
-        password: contraseñaHash, // ← Guardamos la contraseña encriptada
+        contraseña: contraseñaHash, // ← Guardamos la contraseña encriptada
       });
 
       // Guardamos el nuevo usuario en la base de datos
@@ -111,9 +111,9 @@ const registro = async (peticion, respuesta) => {
 
 const login = async (peticion, respuesta) => {
   try {
-    const { email, password } = peticion.body;
+    const { email, contraseña } = peticion.body;
 
-    if (!email || !password) {
+    if (!email || !contraseña) {
       return respuesta
         .status(400)
         .json({ error: "Debe rellenar todos los campos" });
@@ -124,7 +124,10 @@ const login = async (peticion, respuesta) => {
       return respuesta.status(404).json({ error: "Usuario no encontrado" });
     }
 
-    const contraseñaValida = await bcrypt.compare(password, checkUser.password);
+    const contraseñaValida = await bcrypt.compare(
+      contraseña,
+      checkUser.contraseña
+    );
     if (!contraseñaValida) {
       return respuesta.status(401).json({ error: "Contraseña incorrecta" });
     }
@@ -171,7 +174,7 @@ const detallesUsuario = async (peticion, respuesta) => {
     // Buscamos al usuario por su id y poblamos las tareas asociadas a él
     const getDetails = await User.findById(user._id)
       .populate("tareas") // Traemos las tareas asociadas
-      .select("-password"); // Excluimos la contraseña de la respuesta
+      .select("-contraseña"); // Excluimos la contraseña de la respuesta
 
     if (getDetails) {
       const todasLasTareas = getDetails.tareas;
